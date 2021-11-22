@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import random as rnd
 
@@ -7,7 +9,7 @@ r_list = [1]
 random_parameters = [3, 4, 128]     # [a, c, m]
 
 
-def generate_random_nummer(random_function_nr):
+def generate_random_number(random_function_nr):
     if random_function_nr == 1:
         return rnd.randint(1, 4)
     a = random_parameters[0]
@@ -23,7 +25,7 @@ def create_walk(number_of_steps, random_function_nr=1, can_cross_itself=True, ca
     y_pos = np.zeros(number_of_steps, dtype=np.int64)
 
     for n in range(number_of_steps-1):
-        rand_int = generate_random_nummer(random_function_nr)
+        rand_int = generate_random_number(random_function_nr)
         if rand_int == 1:
             x_pos[n+1] = x_pos[n]+1
         elif rand_int == 2:
@@ -47,16 +49,20 @@ def plot_walk(*args, title='Random walk'):
     plt.show()
 
 
-def calculate_root_mean_squared():
-    pass
+def calculate_distance(x_pos, y_pos):
+    return math.sqrt(x_pos[-1]**2+y_pos[-1]**2)
 
 
-def calculate_root_mean_squared_fluctuation():
-    pass
+def calculate_root_mean_squared(array, n):
+    return np.sqrt(np.dot(array, array)/n)
 
 
-def calculate_standard_error():
-    pass
+def calculate_root_mean_squared_fluctuation(array, n):
+    return np.sqrt((np.dot(array, array)+np.sum(array)**2)*n/(n-1))
+
+
+def calculate_standard_error(array, n):
+    return array/np.sqrt(n)
 
 
 def check_if_walk_crosses_itself(x_pos, y_pos):
@@ -86,6 +92,45 @@ def assignment_1b():
     x_pos, y_pos = create_walk(100, random_function_nr=2)
     plot_walk(x_pos, y_pos, title='Random walk with m = 101')
 
+
+def assignment_1c():
+    step_numbers = [x for x in range(1, 1000, 50)]
+    number_of_iterations = 100
+    distance_v_step_numbers = {}
+    root_mean_squared = []
+    root_mean_squared_fluctuation = []
+    for n in step_numbers:
+        distance_v_step_numbers[n] = np.zeros(number_of_iterations)
+        for i in range(number_of_iterations):
+            x_pos, y_pos = create_walk(n)
+            distance_v_step_numbers[n][i] = calculate_distance(x_pos, y_pos)
+        root_mean_squared.append(calculate_root_mean_squared(distance_v_step_numbers[n], number_of_iterations))
+        root_mean_squared_fluctuation.append(calculate_root_mean_squared_fluctuation(distance_v_step_numbers[n], number_of_iterations))
+    standard_errors = calculate_standard_error(root_mean_squared_fluctuation, number_of_iterations)
+
+    # plt.clf()
+    # plt.plot(step_numbers, root_mean_squared)
+    # plt.title('RMS distance vs number of steps, with '+str(number_of_iterations)+' iterations for each N')
+    # plt.show()
+    #
+    # plt.clf()
+    # plt.plot(step_numbers, root_mean_squared_fluctuation)
+    # plt.title('RMS distance fluctuation vs number of steps, with ' + str(number_of_iterations) + ' iterations for each N')
+    # plt.show()
+    #
+    # plt.clf()
+    # plt.plot(step_numbers, standard_errors)
+    # plt.title('Standard error vs number of steps, with ' + str(number_of_iterations) + ' iterations for each N')
+    # plt.show()
+
+    # Plot with errorbars
+    # plt.clf()
+    # plt.errorbar(step_numbers, root_mean_squared, yerr=standard_errors)
+    # plt.title('RMS distance vs number of steps, with errorbars')
+    # plt.show()
+
+
 # Function calls
 # assignment_1a()
-assignment_1b()
+# assignment_1b()
+# assignment_1c()
