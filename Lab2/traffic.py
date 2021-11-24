@@ -18,8 +18,8 @@ class TrafficSimulation:
 
         self.pos = np.zeros((self.number_of_timesteps, self.number_of_cars))
         self.vel = np.zeros((self.number_of_timesteps, self.number_of_cars))
-        self.flow = 0
-        self.equilibrium_stepnr = 0
+        self.flow = np.zeros(self.number_of_timesteps)
+        self.average_flow = 0
 
         self._set_inital_conditions(initial_pos, initial_vel)
         self._run()
@@ -58,8 +58,15 @@ class TrafficSimulation:
                 if self.vel[n,i] > 0 and _randomly_lower_vel():
                     self.vel[n,i] -= 1
                 self.pos[n,i] = self.pos[n-1,i]+self.vel[n,i]
+
+            self.flow[n] = self.vel[n,:].sum()/self.road_length
+
             if self.animate:
                 self._animate(self.pos[n, :])
+        avg_flow = 0
+        for n in range(20, self.number_of_timesteps):
+            avg_flow += self.flow[n]
+        self.average_flow = avg_flow/(self.number_of_timesteps-20)
 
     def show(self):
         plt.clf()
@@ -92,6 +99,69 @@ class TrafficSimulation:
         plt.show()
 
 
-sim = TrafficSimulation(number_of_timesteps=50, number_of_cars=10, animate=True)
+# 2.2a)
+# simulations = {}
+# number_of_simulations = 100
+# avg_flow = {}
+# for num_cars in range(2,52,5):
+#     simulations[num_cars] = []
+#     avg_flow[num_cars] = 0
+#     for i in range(number_of_simulations):
+#         sim = TrafficSimulation(number_of_cars=num_cars)
+#         simulations[num_cars].append(sim)
+#         avg_flow[num_cars] += sim.average_flow
+#     avg_flow[num_cars] = avg_flow[num_cars]/number_of_simulations
+#
+#
+# plt.clf()
+# plt.plot(np.arange(2,52,5)/50, avg_flow.values(), '.-')
+# plt.xlabel('Density cars/road')
+# plt.ylabel('Average flow')
+# plt.title('Average flow vs. road density')
+# plt.show()
 
+def calculate_standard_error_estimate(lst, n):
+    sum1 = 0
+    for i in range(len(lst)):
+        sum1 += lst[i]**2
+    sum2 = 0
+    for i in range(len(lst)):
+        sum2 += lst[i]
+    return np.sqrt((sum1+sum2**2)/(n-1))
+
+# flows = {}
+# errors = {}
+# for n in range(10,1000,50):
+#     flows[n] = []
+#     for i in range(n):
+#         sim = TrafficSimulation()
+#         flows[n].append(sim.average_flow)
+#     errors[n] = calculate_standard_error_estimate(flows[n], n)
+#
+# plt.clf()
+# plt.plot(errors.keys(), errors.values(), '.-')
+# plt.xlabel('Number of simulations')
+# plt.ylabel('Standard error estimate of flow')
+# plt.title('Standard error estimate of flow vs number of simulations')
+# plt.show()
+
+simulations = {}
+number_of_simulations = 100
+avg_flow = {}
+for length in range(25,100, 10):
+    simulations[length] = []
+    avg_flow[length] = 0
+    for i in range(number_of_simulations):
+        sim = TrafficSimulation(road_length=length)
+        simulations[length].append(sim)
+        avg_flow[length] += sim.average_flow
+    avg_flow[length] = avg_flow[length]/number_of_simulations
+
+
+plt.clf()
+plt.plot(25/np.arange(25,100, 10), avg_flow.values(), '.-')
+plt.xlabel('Density cars/road')
+plt.ylabel('Average flow')
+plt.title('Average flow vs. road density')
+plt.show()
 
