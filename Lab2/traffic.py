@@ -145,23 +145,38 @@ def calculate_standard_error_estimate(lst, n):
 # plt.title('Standard error estimate of flow vs number of simulations')
 # plt.show()
 
-simulations = {}
-number_of_simulations = 100
-avg_flow = {}
-for length in range(25,100, 10):
-    simulations[length] = []
-    avg_flow[length] = 0
-    for i in range(number_of_simulations):
-        sim = TrafficSimulation(road_length=length)
-        simulations[length].append(sim)
-        avg_flow[length] += sim.average_flow
-    avg_flow[length] = avg_flow[length]/number_of_simulations
+# simulations = {}
+# lengths = np.arange(25,1000,50)
+# density = 0.25
+# number_of_simulations = 100
+# avg_flow = {}
+# for length in lengths:
+#     simulations[length] = []
+#     avg_flow[length] = 0
+#     for i in range(number_of_simulations):
+#         sim = TrafficSimulation(number_of_cars=int(length*density),road_length=length)
+#         simulations[length].append(sim)
+#         avg_flow[length] += sim.average_flow
+#     avg_flow[length] = avg_flow[length]/number_of_simulations
+#
+#
+# plt.clf()
+# plt.plot(avg_flow.keys(), avg_flow.values(), '.-')
+# plt.xlabel('Road length')
+# plt.ylabel('Average flow')
+# plt.title('Average flow vs. road length for a given density of 0.25')
+# plt.show()
 
-
+sim1 = TrafficSimulation(p=0.1)
+sim5 = TrafficSimulation(v_max=0.8)
+sim2 = TrafficSimulation()
 plt.clf()
-plt.plot(25/np.arange(25,100, 10), avg_flow.values(), '.-')
-plt.xlabel('Density cars/road')
-plt.ylabel('Average flow')
-plt.title('Average flow vs. road density')
-plt.show()
+for sim in [sim1,sim2,sim5]:
+    sim.show()
+# plt.clf()
+# plt.plot(avg_flow.keys(), avg_flow.values(), '.-')
+# plt.xlabel('Road length')
+# plt.ylabel('Average flow')
+# plt.title('Average flow vs. road length for a given density of 0.25')
+# plt.show()
 
