@@ -147,6 +147,7 @@ class MDsimulator:
         self.Ekin = 0
         self.PV = 0
         self.Cv = 0
+        self.use_andersen_thermostat = False
         # Initialize figure for animation
         # self.fig = plt.figure()
         # self.ax = plt.subplot(xlim=(0, self.Lx), ylim=(0, self.Ly))
@@ -202,8 +203,9 @@ class MDsimulator:
                 self.vx[i] += self.fx[i] * self.invmass * 0.5 * self.dt
                 self.vy[i] += self.fy[i] * self.invmass * 0.5 * self.dt
 
-            # TODO
             # When temperature coupling, modify the velocity of one particle here
+            if self.use_andersen_thermostat and i % N_OUTPUT_HEAT_CAP == 0:
+                thermalize(self.vx, self.vy, np.sqrt(self.kBT))
 
             # Add the kinetic energy of particle i to the total
             self.Ekin += 0.5 * self.mass * (self.vx[i] ** 2 + self.vy[i] ** 2)
@@ -268,13 +270,14 @@ class MDsimulator:
         self.integrate_some_steps(framenr)
         return self.ax.scatter(self.x, self.y, s=1500, marker='o', c="r"),
 
-    def simulate(self):
+    def simulate(self, use_andersen_thermostat=False):
 
         """
             Performs the whole MD simulation
             If the total number of steps is not divisible by the frame size, then
             the simulation will run for nsteps-(nsteps%numStepsPerFrame) steps
         """
+        self.use_andersen_thermostat = use_andersen_thermostat
 
         nn = int(self.nsteps // self.numStepsPerFrame)
         # print("T=" + str(self.T) + ", integrating for " + str(nn * self.numStepsPerFrame) + " steps ...")
@@ -335,7 +338,6 @@ def calculate_average(sims):
         'avg_potential': np.average(np.array(avg_potential_energy), axis=0),
         'avg_total': np.average(np.array(avg_total_energy), axis=0)
     }
-    print(result, 'här')
     return result
 
 
@@ -349,6 +351,49 @@ def assignment_b():
             sim.simulate()
             simulations[T].append(sim)
         result[T] = calculate_average(simulations[T])
+    plt.clf()
+    plt.plot(simulations[0.2][0].outt, result[0.2]['avg_kinetic'], label='T=0.2')
+    plt.plot(simulations[0.2][0].outt, result[1]['avg_kinetic'], label='T=1')
+    plt.legend()
+    plt.title('Kinetic energy over time for different temperatures')
+    plt.xlabel('Time')
+    plt.ylabel('Energy')
+    plt.show()
+
+    # <editor-fold desc="plots">
+    plt.clf()
+    plt.plot(simulations[0.2][0].outt, result[0.2]['avg_potential'], label='T=0.2')
+    plt.plot(simulations[0.2][0].outt, result[1]['avg_potential'], label='T=1')
+    plt.legend()
+    plt.title('Potential energy over time for different temperatures')
+    plt.xlabel('Time')
+    plt.ylabel('Energy')
+    plt.show()
+    # </editor-fold>
+
+    plt.clf()
+    plt.plot(simulations[0.2][0].outt, result[0.2]['avg_total'], label='T=0.2')
+    plt.plot(simulations[0.2][0].outt, result[1]['avg_total'], label='T=1')
+    plt.legend()
+    plt.title('Total energy over time for different temperatures')
+    plt.xlabel('Time')
+    plt.ylabel('Energy')
+    plt.show()
+
+
+def assignment_c():
+    temperatures = [0.2, 1]
+    simulations = {0.2: [], 1: []}
+    result = {}
+    for T in temperatures:
+        for i in range(2):
+            sim = MDsimulator(T=T)
+            sim.simulate(use_andersen_thermostat=True)
+            simulations[T].append(sim)
+        result[T] = calculate_average(simulations[T])
+
+
+    # <editor-fold desc="Plot">
     plt.clf()
     plt.plot(simulations[0.2][0].outt, result[0.2]['avg_kinetic'], label='T=0.2')
     plt.plot(simulations[0.2][0].outt, result[1]['avg_kinetic'], label='T=1')
@@ -375,7 +420,72 @@ def assignment_b():
     plt.xlabel('Time')
     plt.ylabel('Energy')
     plt.show()
+    # </editor-fold>
 
+def assignment_d():
+    temperatures = [0.2, 0.4, 0.6, 0.8, 1]
+    simulations = {}
+    result = {}
+    avg_tot_energy = {}
+    avg_heat_capacity = {}
+    for T in temperatures:
+        simulations[T] = []
+        for i in range(2):
+            sim = MDsimulator(T=T)
+            sim.simulate(use_andersen_thermostat=True)
+            simulations[T].append(sim)
+        result[T] = calculate_average(simulations[T])
+        avg_tot_energy[T] = np.mean(result[T]['avg_kinetic'])
+        avg_heat_capacity[T] = np.average([sim.Cv for sim in simulations[T]])
+
+    plt.clf()
+    plt.plot(temperatures, avg_tot_energy.values(), '.-')
+    plt.title('Average energy for simulation with temperature T')
+    plt.xlabel('Temperatures')
+    plt.ylabel('Average energy')
+    plt.show()
+
+    plt.clf()
+    plt.plot(temperatures, avg_heat_capacity.values(), '.-')
+    plt.title('Heat capacity for simulation with temperature T')
+    plt.xlabel('Temperatures')
+    plt.ylabel('Heat capacity')
+    plt.show()
+
+def assignment_e():
+    temperatures = np.array([0.2, 0.4, 0.6, 0.8, 1])
+    n = 24
+    L = 6.7
+    pressure_L = []
+    for T in temperatures:
+        sim = MDsimulator(T=T)
+        sim.simulate(use_andersen_thermostat=True)
+        pressure_L.append(sim.PV/((2*L)**3))
+    plt.clf()
+    plt.plot(temperatures, pressure_L, label='Simulation')
+    plt.plot(temperatures, n*kB/L**3*temperatures, label='Ideal gas')
+    plt.legend()
+    plt.xlabel('Temperatures')
+    plt.ylabel('Pressure')
+    plt.title('Pressure vs temperature for L = 6.7')
+    plt.show()
+
+    pressure_2L = []
+    for T in temperatures:
+        sim = MDsimulator(T=T, L=2*L)
+        sim.simulate(use_andersen_thermostat=True)
+        pressure_2L.append(sim.PV / (2*L)**3)
+    plt.clf()
+    plt.plot(temperatures, pressure_2L, label='Simulation')
+    plt.plot(temperatures, n * kB / (2*L) ** 3 * temperatures, label='Ideal gas')
+    plt.legend()
+    plt.xlabel('Temperatures')
+    plt.ylabel('Pressure')
+    plt.title('Pressure vs temperature for L = 13.4')
+    plt.show()
 
 # assignment_a()
 # assignment_b()
+# assignment_c()
+# assignment_d()
+assignment_e()
