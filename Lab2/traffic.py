@@ -127,40 +127,40 @@ def calculate_standard_error_estimate(lst, n):
     sum2 = 0
     for i in range(len(lst)):
         sum2 += lst[i]
-    return np.sqrt((sum1+sum2**2)/(n-1))
+    return np.sqrt((sum1-sum2**2)/(n-1))
 
-# flows = {}
-# errors = {}
-# for n in range(10,1000,50):
-#     flows[n] = []
-#     for i in range(n):
-#         sim = TrafficSimulation()
-#         flows[n].append(sim.average_flow)
-#     errors[n] = calculate_standard_error_estimate(flows[n], n)
-#
-# plt.clf()
-# plt.plot(errors.keys(), errors.values(), '.-')
-# plt.xlabel('Number of simulations')
-# plt.ylabel('Standard error estimate of flow')
-# plt.title('Standard error estimate of flow vs number of simulations')
-# plt.show()
-
-simulations = {}
-number_of_simulations = 100
-avg_flow = {}
-for length in range(25,100, 10):
-    simulations[length] = []
-    avg_flow[length] = 0
-    for i in range(number_of_simulations):
-        sim = TrafficSimulation(road_length=length)
-        simulations[length].append(sim)
-        avg_flow[length] += sim.average_flow
-    avg_flow[length] = avg_flow[length]/number_of_simulations
-
+flows = {}
+errors = {}
+for n in range(10,300,25):
+    flows[n] = []
+    for i in range(n):
+        sim = TrafficSimulation()
+        flows[n].append(sim.average_flow)
+    errors[n] = calculate_standard_error_estimate(flows[n], n)
 
 plt.clf()
-plt.plot(25/np.arange(25,100, 10), avg_flow.values(), '.-')
-plt.xlabel('Density cars/road')
-plt.ylabel('Average flow')
-plt.title('Average flow vs. road density')
+plt.plot(errors.keys(), errors.values(), '.-')
+plt.xlabel('Number of simulations')
+plt.ylabel('Standard error estimate of flow')
+plt.title('Standard error estimate of flow vs number of simulations')
 plt.show()
+
+# simulations = {}
+# number_of_simulations = 100
+# avg_flow = {}
+# for length in range(25,100, 10):
+#     simulations[length] = []
+#     avg_flow[length] = 0
+#     for i in range(number_of_simulations):
+#         sim = TrafficSimulation(road_length=length)
+#         simulations[length].append(sim)
+#         avg_flow[length] += sim.average_flow
+#     avg_flow[length] = avg_flow[length]/number_of_simulations
+#
+#
+# plt.clf()
+# plt.plot(25/np.arange(25,100, 10), avg_flow.values(), '.-')
+# plt.xlabel('Density cars/road')
+# plt.ylabel('Average flow')
+# plt.title('Average flow vs. road density')
+# plt.show()
