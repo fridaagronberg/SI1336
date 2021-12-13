@@ -62,4 +62,3 @@ def update(step):
 # we generate nsteps+1 frames, because frame=0 is skipped (see above)
 anim = animation.FuncAnimation(fig, update, frames=nsteps+1, interval=200, blit=True, repeat=False)
 plt.show()
-
