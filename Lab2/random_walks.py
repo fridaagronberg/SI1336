@@ -72,20 +72,13 @@ def calculate_distance(x_pos, y_pos):
 
 
 def calculate_root_mean_squared(lst, n):
-    sum = 0
-    for i in range(len(lst)):
-        sum += lst[i]**2
-    return np.sqrt(sum)
+    return np.sqrt(np.sum(lst**2)/(n))
 
 
 def calculate_root_mean_squared_fluctuation(lst, n):
-    sum1 = 0
-    for i in range(len(lst)):
-        sum1 += lst[i]**2
-    sum2 = 0
-    for i in range(len(lst)):
-        sum2 += lst[i]
-    return np.sqrt((sum1+sum2**2)*n/(n-1))
+    a = calculate_root_mean_squared(lst, n)**2
+    b = calculate_root_mean_squared(lst**2, n)**2
+    return np.sqrt(b-a)
 
 
 def calculate_standard_error(lst, n):
@@ -159,8 +152,9 @@ def assignment_1b():
 
 
 def assignment_1c():
-    step_numbers = [x for x in range(1, 1000, 50)]
-    number_of_walks = 100
+    #step_numbers = [x for x in range(1, 1000, 50)]
+    step_numbers = [x for x in range(1, 100, 10)]
+    number_of_walks = 5
     distance_v_step_numbers = {}
     root_mean_squared = []
     root_mean_squared_fluctuation = []
@@ -257,10 +251,15 @@ def assignment_1e():
     plt.legend()
     plt.show()
 
+def assig_1_nice_plots():
+    for n in [1,2]:
+        x_pos, y_pos, a = create_walk(1000, random_function_nr=n)
+        plot_walk(x_pos, y_pos, title='Random walk with 1000 steps for function number '+str(n))
 
 # Function calls
 # assignment_1a()
 # assignment_1b()
-# assignment_1c()
+assignment_1c()
 # assignment_1d()
-assignment_1e()
+# assignment_1e()
+# assig_1_nice_plots()
