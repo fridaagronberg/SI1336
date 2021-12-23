@@ -72,13 +72,13 @@ def calculate_distance(x_pos, y_pos):
 
 
 def calculate_root_mean_squared(lst, n):
-    return np.sqrt(np.sum(lst**2)/(n))
+    return np.sqrt(np.sum(lst**2))/n
 
 
 def calculate_root_mean_squared_fluctuation(lst, n):
     a = calculate_root_mean_squared(lst, n)**2
-    b = calculate_root_mean_squared(lst**2, n)**2
-    return np.sqrt(b-a)
+    b = calculate_root_mean_squared(lst**2, n)
+    return np.sqrt(b-a)*n/(n-1)
 
 
 def calculate_standard_error(lst, n):
@@ -86,7 +86,7 @@ def calculate_standard_error(lst, n):
 
 
 def check_if_walk_crosses_itself(x_pos, y_pos):
-    """Returns True i walk crosses itself else False."""
+    """Returns True if walk crosses itself else False."""
     if (x_pos[-1], y_pos[-1]) in zip(x_pos[:-1], y_pos[:-1]):
         return True
     return False
@@ -152,45 +152,55 @@ def assignment_1b():
 
 
 def assignment_1c():
-    #step_numbers = [x for x in range(1, 1000, 50)]
-    step_numbers = [x for x in range(1, 100, 10)]
-    number_of_walks = 5
+    plt.figure()
+    step_numbers = [x for x in range(20, 1000, 150)]
+    number_of_walks = 1100
+    x = np.arange(1, number_of_walks, 20)
     distance_v_step_numbers = {}
-    root_mean_squared = []
-    root_mean_squared_fluctuation = []
     for n in step_numbers:
         distance_v_step_numbers[n] = np.zeros(number_of_walks)
         for i in range(number_of_walks):
             x_pos, y_pos, z = create_walk(n)
             distance_v_step_numbers[n][i] = calculate_distance(x_pos, y_pos)
-        root_mean_squared.append(calculate_root_mean_squared(distance_v_step_numbers[n], number_of_walks))
-        root_mean_squared_fluctuation.append(calculate_root_mean_squared_fluctuation(distance_v_step_numbers[n], number_of_walks))
-    standard_errors = calculate_standard_error(root_mean_squared_fluctuation, number_of_walks)
-
-    plt.clf()
-    plt.plot(step_numbers, root_mean_squared)
-    plt.title('RMS distance vs number of steps, with '+str(number_of_walks)+' walks for each N')
+        y = np.array([np.sqrt(calculate_root_mean_squared(distance_v_step_numbers[n][:i]**2, i)) for i in x])
+        plt.loglog(x, y, label="N = " + str(n))
+        
+    
+    plt.title('RMS distance vs number of walks for different N')
+    plt.legend()
+    plt.xlabel("number of walks")
+    plt.ylabel("rms distance")
     plt.show()
 
-    plt.clf()
-    plt.plot(step_numbers, root_mean_squared_fluctuation)
-    plt.title('RMS distance fluctuation vs number of steps, with ' + str(number_of_walks) + ' walks for each N')
+    plt.figure()
+    for n in step_numbers:
+        y = np.array([calculate_root_mean_squared_fluctuation(distance_v_step_numbers[n][:i], i) for i in x])
+        plt.loglog(x, y, label="N = " + str(n))
+    plt.title('RMS distance fluctuation vs number of walks for different N')
+    plt.legend()
+    plt.xlabel("number of walks")
+    plt.ylabel("rmsf")
     plt.show()
 
-    plt.clf()
-    plt.plot(step_numbers, standard_errors)
-    plt.title('Standard error vs number of steps, with ' + str(number_of_walks) + ' walks for each N')
+    plt.figure()
+    for n in step_numbers:
+        y = np.array([calculate_root_mean_squared_fluctuation(distance_v_step_numbers[n][:i], i)/np.sqrt(i-1) for i in x])
+        plt.loglog(x, y, label="N = " + str(n))
+    plt.title('Standard error vs number of walks for different N')
+    plt.legend()
+    plt.xlabel("number of walks")
+    plt.ylabel("standard error")
     plt.show()
 
     # Plot with errorbars
-    plt.clf()
-    plt.errorbar(step_numbers, root_mean_squared, yerr=standard_errors)
-    plt.title('RMS distance vs number of steps, with errorbars')
-    plt.show()
+    #plt.clf()
+    #plt.errorbar(step_numbers, root_mean_squared, yerr=standard_errors)
+    #plt.title('RMS distance vs number of steps, with errorbars')
+    #plt.show()
 
 
 def assignment_1d():
-    step_numbers = [a for a in range(1,20,2)]
+    step_numbers = [a for a in range(1,40)]
     successful_walks = {}
     number_of_tries = 100
 
@@ -205,7 +215,7 @@ def assignment_1d():
 
     a =0.35
 
-    plt.clf()
+    plt.figure()
     plt.scatter(step_numbers, successful_walk_fractions, label='fraction of successful walks')
     plt.plot(step_numbers, np.exp([-a*x for x in step_numbers]), label='e^-'+str(a)+'x')
     plt.title('Fraction of successful walks vs number of steps')
@@ -220,10 +230,9 @@ def assignment_1d():
             if outcome == 'does not cross itself':
                 successful_walks[n] += 1
     successful_walk_fractions = [x / number_of_tries for x in successful_walks.values()]
-    b= 0.7/step_numbers[-1]
-    plt.clf()
+    plt.figure()
     plt.scatter(step_numbers, successful_walk_fractions, label='fraction of successful walks')
-    plt.plot(step_numbers, [-b * x +1 for x in step_numbers], label='-0.7/19x+1')
+    plt.plot(step_numbers, [1.07**(-x) for x in step_numbers], label='1.07^-x')
     plt.title('Fraction of successful walks vs number of steps')
     plt.legend()
     plt.show()
@@ -231,7 +240,7 @@ def assignment_1d():
 
 def assignment_1e():
     step_numbers = [x for x in range(1, 1000, 50)]
-    number_of_walks = 100
+    number_of_walks = 5
     rms_distance ={}
     for scenario in [['self avoiding',True], ['not self avoiding',False]]:
         distance_v_step_numbers = {}
@@ -241,12 +250,12 @@ def assignment_1e():
             for i in range(number_of_walks):
                 x_pos, y_pos, outcome = create_walk(n, can_cross_itself=scenario[1])
                 distance_v_step_numbers[n][i] = calculate_distance(x_pos, y_pos)
-            root_mean_squared.append(calculate_root_mean_squared(distance_v_step_numbers[n], number_of_walks))
+            root_mean_squared.append(np.sqrt(calculate_root_mean_squared(distance_v_step_numbers[n]**2, number_of_walks)))
         rms_distance[scenario[0]] = root_mean_squared
     plt.clf()
-    plt.plot(step_numbers, rms_distance['self avoiding'], label='self avoiding')
-    plt.plot(step_numbers, rms_distance['not self avoiding'], label='not self avoiding')
-    plt.loglog()
+    plt.loglog(step_numbers, rms_distance['self avoiding'], label='self avoiding')
+    plt.loglog(step_numbers, rms_distance['not self avoiding'], label='not self avoiding')
+
     plt.title('RMS distance vs. number of steps')
     plt.legend()
     plt.show()
@@ -259,7 +268,7 @@ def assig_1_nice_plots():
 # Function calls
 # assignment_1a()
 # assignment_1b()
-assignment_1c()
+# assignment_1c()
 # assignment_1d()
-# assignment_1e()
+assignment_1e()
 # assig_1_nice_plots()
