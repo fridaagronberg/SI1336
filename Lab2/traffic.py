@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from numpy.lib.function_base import average
 
 
 class TrafficSimulation:
@@ -120,30 +121,27 @@ class TrafficSimulation:
 # plt.title('Average flow vs. road density')
 # plt.show()
 
-def calculate_standard_error_estimate(lst, n):
-    sum1 = 0
-    for i in range(len(lst)):
-        sum1 += lst[i]**2
-    sum2 = 0
-    for i in range(len(lst)):
-        sum2 += lst[i]
-    return np.sqrt((sum1-sum2**2)/(n-1))
+def calculate_standard_error_estimate(lst):
+    std = np.std(lst)
+    return std/len(lst)
 
-flows = {}
-errors = {}
-for n in range(10,300,25):
-    flows[n] = []
-    for i in range(n):
-        sim = TrafficSimulation()
-        flows[n].append(sim.average_flow)
-    errors[n] = calculate_standard_error_estimate(flows[n], n)
-
-plt.clf()
-plt.plot(errors.keys(), errors.values(), '.-')
-plt.xlabel('Number of simulations')
-plt.ylabel('Standard error estimate of flow')
-plt.title('Standard error estimate of flow vs number of simulations')
-plt.show()
+#2.b
+#avg_flows = []
+#errors = {}
+#x=np.arange(2,20)
+#for n in x:
+#    sim = TrafficSimulation()
+ #   avg_flows.append(sim.average_flow)
+#
+#for n in x:
+#    errors[n] = calculate_standard_error_estimate(avg_flows[:n])
+#
+#plt.clf()
+#plt.plot(errors.keys(), errors.values(), '.-')
+#plt.xlabel('Number of simulations')
+#plt.ylabel('Standard error estimate of flow')
+#plt.title('Standard error estimate of flow vs number of simulations')
+#plt.show()
 
 # simulations = {}
 # number_of_simulations = 100
@@ -164,3 +162,41 @@ plt.show()
 # plt.ylabel('Average flow')
 # plt.title('Average flow vs. road density')
 # plt.show()
+
+#2.c
+# n=10
+# avg_flows=[]
+# lengths = np.arange(25,1000, 50)
+# for length in lengths:
+#     avg_flow = 0
+#     for i in range(n):
+#         sim = TrafficSimulation(road_length=length, number_of_cars=int(0.25*length))
+#         avg_flow += sim.average_flow
+#     avg_flows.append(avg_flow/n)
+# 
+# plt.clf()
+# plt.plot(lengths, avg_flows, '.-')
+# plt.title("Average flow vs road length, for a given density of 0.25")
+# plt.xlabel("Road length")
+# plt.ylabel("Average flow")
+# plt.show()
+
+#2.d
+max_vels = [1,2,5]
+lengths = np.arange(25,200, 5)
+avg_flows = {}
+for v in max_vels:
+    avg_flows[v] = []
+    for lenght in lengths:
+        sim = TrafficSimulation(road_length=lenght, v_max=v)
+        avg_flows[v].append(sim.average_flow)
+
+plt.clf()
+plt.plot(25/lengths, avg_flows[1], '.-', label="v_max = 1")
+plt.plot(25/lengths, avg_flows[2], '.-', label="v_max = 2")
+plt.plot(25/lengths, avg_flows[5], '.-', label="v_max = 5")
+plt.ylabel("Average flow")
+plt.xlabel("Road density")
+plt.title('Average flow vs. road density')
+plt.legend()
+plt.show()
