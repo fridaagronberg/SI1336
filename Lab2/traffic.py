@@ -182,21 +182,52 @@ def calculate_standard_error_estimate(lst):
 # plt.show()
 
 #2.d
-max_vels = [1,2,5]
-lengths = np.arange(25,200, 5)
-avg_flows = {}
-for v in max_vels:
-    avg_flows[v] = []
-    for lenght in lengths:
-        sim = TrafficSimulation(road_length=lenght, v_max=v)
-        avg_flows[v].append(sim.average_flow)
+# max_vels = [1,2,5]
+# lengths = np.arange(25,200, 5)
+# avg_flows = {}
+# for v in max_vels:
+#     avg_flows[v] = []
+#     for lenght in lengths:
+#         sim = TrafficSimulation(road_length=lenght, v_max=v)
+#         avg_flows[v].append(sim.average_flow)
+# 
+# plt.clf()
+# plt.plot(25/lengths, avg_flows[1], '.-', label="v_max = 1")
+# plt.plot(25/lengths, avg_flows[2], '.-', label="v_max = 2")
+# plt.plot(25/lengths, avg_flows[5], '.-', label="v_max = 5")
+# plt.ylabel("Average flow")
+# plt.xlabel("Road density")
+# plt.title('Average flow vs. road density')
+# plt.legend()
+# plt.show()
 
-plt.clf()
-plt.plot(25/lengths, avg_flows[1], '.-', label="v_max = 1")
-plt.plot(25/lengths, avg_flows[2], '.-', label="v_max = 2")
-plt.plot(25/lengths, avg_flows[5], '.-', label="v_max = 5")
-plt.ylabel("Average flow")
-plt.xlabel("Road density")
-plt.title('Average flow vs. road density')
-plt.legend()
-plt.show()
+#2.e
+# probabilities = [0.1, 0.5, 0.8]
+# lengths = np.arange(25,200, 5)
+# avg_flows = {}
+# for p in probabilities:
+#     avg_flows[p] = []
+#     for lenght in lengths:
+#         sim = TrafficSimulation(road_length=lenght, p=p)
+#         avg_flows[p].append(sim.average_flow)
+# plt.clf()
+# plt.plot(25/lengths, avg_flows[0.1], '.-', label="p = 0.1")
+# plt.plot(25/lengths, avg_flows[0.5], '.-', label="p = 0.5")
+# plt.plot(25/lengths, avg_flows[0.8], '.-', label="p = 0.8")
+# plt.ylabel("Average flow")
+# plt.xlabel("Road density")
+# plt.title('Average flow vs. road density')
+# plt.legend()
+# plt.show()
+
+probabilities = [0.1, 0.5, 0.8]
+lengths = np.arange(25,200, 5)
+for p in probabilities:
+    plt.figure()
+    sim = TrafficSimulation(p=p, road_length=50)
+    for i in range(sim.number_of_cars):
+        plt.scatter(sim.pos[:,i]%50, np.arange(sim.number_of_timesteps),2.3)
+    plt.title('Position and time for 25 cars and 100 steps.')
+    plt.xlabel('Position')
+    plt.ylabel('Time')
+    plt.show()

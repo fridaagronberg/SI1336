@@ -286,5 +286,5 @@ def assig_1_nice_plots():
 # assignment_1b()
 # assignment_1c()
 # assignment_1d()
-assignment_1e()
+# assignment_1e()
 # assig_1_nice_plots()
