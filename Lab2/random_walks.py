@@ -239,25 +239,43 @@ def assignment_1d():
 
 
 def assignment_1e():
-    step_numbers = [x for x in range(1, 1000, 50)]
-    number_of_walks = 5
-    rms_distance ={}
-    for scenario in [['self avoiding',True], ['not self avoiding',False]]:
-        distance_v_step_numbers = {}
-        root_mean_squared = []
-        for n in step_numbers:
-            distance_v_step_numbers[n] = np.zeros(number_of_walks)
-            for i in range(number_of_walks):
-                x_pos, y_pos, outcome = create_walk(n, can_cross_itself=scenario[1])
-                distance_v_step_numbers[n][i] = calculate_distance(x_pos, y_pos)
-            root_mean_squared.append(np.sqrt(calculate_root_mean_squared(distance_v_step_numbers[n]**2, number_of_walks)))
-        rms_distance[scenario[0]] = root_mean_squared
-    plt.clf()
-    plt.loglog(step_numbers, rms_distance['self avoiding'], label='self avoiding')
-    plt.loglog(step_numbers, rms_distance['not self avoiding'], label='not self avoiding')
+    # number_of_steps = 500
+    # number_of_walks = 100
+    # x = np.arange(1, number_of_walks, 20)
+    # scenarios = {1: ['non self avoiding', True, True], 2: ['self avoiding', False, True], 3: ['self avoding and can\'t walk backwards', False, False]}
+    # plt.figure()
+    # for m in scenarios:
+    #     z = np.zeros(number_of_walks)
+    #     for i in range(number_of_walks):
+    #         x_pos, y_pos, outcome = create_walk(number_of_steps, can_cross_itself=scenarios[m][1], can_walk_backwards=scenarios[m][2])
+    #         z[i] = calculate_distance(x_pos, y_pos)
+    #     y = np.array([np.sqrt(calculate_root_mean_squared(z[:i]**2, i)) for i in x])
+    #     plt.loglog(x, y, label=scenarios[m][0])
+    # plt.legend()
+    # plt.title('RMS distance vs number of walks averaged over, N = 500')
+    # plt.xlabel('Number of walks')
+    # plt.ylabel('RMS distance')
+    # plt.show()
 
-    plt.title('RMS distance vs. number of steps')
+    number_of_steps = 1000
+    number_of_walks = 200
+    distance = {}
+    scenarios = {1: ['non self avoiding', True, True], 2: ['self avoiding', False, True], 3: ['self avoding and can\'t walk backwards', False, False]}
+    plt.figure()
+    nn = np.arange(20, number_of_steps, 50)
+    for m in scenarios:
+        y = []
+        for n in nn:     
+            z = np.zeros(number_of_walks)
+            for i in range(number_of_walks):
+                x_pos, y_pos, outcome = create_walk(n, can_cross_itself=scenarios[m][1], can_walk_backwards=scenarios[m][2])
+                z[i] = calculate_distance(x_pos, y_pos)
+            y.append(np.sqrt(calculate_root_mean_squared(z**2, len(z))))
+        plt.loglog(nn, y, label=scenarios[m][0])
     plt.legend()
+    plt.title('RMS distance vs number of steps')
+    plt.xlabel('Number of steps')
+    plt.ylabel('RMS distance')
     plt.show()
 
 def assig_1_nice_plots():
