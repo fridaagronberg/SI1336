@@ -52,10 +52,7 @@ def create_walk(number_of_steps, random_function_nr=1, can_cross_itself=True, ca
             if check_if_walk_crosses_itself(x_pos, y_pos):
                 return x_pos, y_pos, 'crosses itself'
 
-    if not can_cross_itself:
-        return x_pos, y_pos, 'does not cross itself'
-    else:
-        return x_pos, y_pos, ''
+    return x_pos, y_pos, 'does not cross itself'
 
 
 def plot_walk(*args, title='Random walk'):
@@ -248,7 +245,8 @@ def assignment_1e():
     #     z = np.zeros(number_of_walks)
     #     for i in range(number_of_walks):
     #         x_pos, y_pos, outcome = create_walk(number_of_steps, can_cross_itself=scenarios[m][1], can_walk_backwards=scenarios[m][2])
-    #         z[i] = calculate_distance(x_pos, y_pos)
+    #         if outcome == 'does not cross itself':
+    #            z[i] = calculate_distance(x_pos, y_pos)
     #     y = np.array([np.sqrt(calculate_root_mean_squared(z[:i]**2, i)) for i in x])
     #     plt.loglog(x, y, label=scenarios[m][0])
     # plt.legend()
@@ -257,21 +255,21 @@ def assignment_1e():
     # plt.ylabel('RMS distance')
     # plt.show()
 
-    number_of_steps = 1000
-    number_of_walks = 200
-    distance = {}
+    number_of_steps = 50
+    number_of_walks = 100
     scenarios = {1: ['non self avoiding', True, True], 2: ['self avoiding', False, True], 3: ['self avoding and can\'t walk backwards', False, False]}
     plt.figure()
-    nn = np.arange(20, number_of_steps, 50)
+    nn = np.arange(5, number_of_steps, 1)
     for m in scenarios:
         y = []
         for n in nn:     
             z = np.zeros(number_of_walks)
             for i in range(number_of_walks):
                 x_pos, y_pos, outcome = create_walk(n, can_cross_itself=scenarios[m][1], can_walk_backwards=scenarios[m][2])
-                z[i] = calculate_distance(x_pos, y_pos)
+                if outcome == 'does not cross itself':
+                    z[i] = calculate_distance(x_pos, y_pos)
             y.append(np.sqrt(calculate_root_mean_squared(z**2, len(z))))
-        plt.loglog(nn, y, label=scenarios[m][0])
+        plt.scatter(nn, y, label=scenarios[m][0])
     plt.legend()
     plt.title('RMS distance vs number of steps')
     plt.xlabel('Number of steps')
