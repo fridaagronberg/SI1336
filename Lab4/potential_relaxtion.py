@@ -22,7 +22,7 @@ class LaplaceApp:
         self.im = ax.imshow(self.grid, cmap=None, interpolation='nearest')
         fig.colorbar(self.im)
 
-        self.ani = animation.FuncAnimation(fig, self.calculate_potential, frames=60,
+        self.ani = animation.FuncAnimation(fig, self.calculate_potential, frames=500,
                                             interval=200, blit=True, repeat = False)
         plt.show()
 
@@ -58,5 +58,7 @@ class LaplaceApp:
         self.im.set_array(self.grid)
         return self.im,
 
-initial_grid = 9*np.ones([8, 8])
-LaplaceApp(expected_grid=initial_grid+1, initial_grid=initial_grid)
+initial_grid = 7.5*np.ones([9, 9])
+
+LaplaceApp(expected_grid=10*np.ones([9, 9]), initial_grid=initial_grid, length=11,
+bottom_boundary=10, top_boundary=10, left_boundary=5, right_boundary=5)
