@@ -53,6 +53,7 @@ class LaplaceApp:
         error = self._simple_relaxtion_iteration()
         self.number_of_iterations += 1
         if error < 0.01:
+            sself.ani.save()
             self.ani.event_source.stop()
             print('Number of iterations required ', self.number_of_iterations)
         self.im.set_array(self.grid)
