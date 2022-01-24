@@ -7,7 +7,7 @@ new_vectors = {
 4: np.array([0, -1, 0]),
 5: np.array([0, 0, 1]),
 6: np.array([0, 0, -1]),
-last_rand_int: 0
+'last_rand_int': 0
 }
 
 class RandomWalk:
@@ -26,27 +26,27 @@ class RandomWalk:
 
     def _run_simulation(self):
 
-        for n in range(nsteps):
-            new_vector = self._generate_new_vector(n):
+        for n in range(self.nsteps):
+            new_vector = self._generate_new_vector()
             self.position[:, n+1] = self.position[:, n] + new_vector
             if self._self_avoiding:
-                crosses_itself = self._check_if_crossing_itself(current_step=n)
+                crosses_itself = self._check_if_crossing_itself(n)
                 if crosses_itself:
                     self.successfully_self_avoidning = False
                     self.step_number_when_breaking = n
                     break
 
     def _generate_new_vector(self):
-        random_number = np.randint(1, 7)
+        random_number = np.random.randint(1, 7)
         if not self._can_walk_backwards:
-            if new_vectors[last_rand_int] == random_number:
+            if new_vectors['last_rand_int'] == random_number:
                 return self._generate_new_vector()
-            new_vectors[last_rand_int] = random_number
+            new_vectors['last_rand_int'] = random_number
         return new_vectors[random_number]
 
-    def _check_if_crossing_itself(current_step):
+    def _check_if_crossing_itself(self, current_step):
         """Returns True if the random walk crosses itself, else False."""
         for n in range(current_step):
-            if self.position[:, n] == self.position[:, current_step]:
+            if np.array_equal(self.position[:, n], self.position[:, current_step]):
                 return True
         return False
