@@ -62,7 +62,7 @@ def pairEnergy(r):
 # The pair force
 def pairForce(r):
     inv_r = 1 / r
-    return 24 * np.sqrt(4 * inv_r ** 13 + inv_r ** 7 - 4 * inv_r ** 11)
+    return 24 * (2 * inv_r ** 13 - inv_r ** 7)
 
 
 # Calculate the shortest periodic distance, unit cell [0,Lx],[0,Ly]
@@ -316,12 +316,13 @@ class MDsimulator:
 
 
 def assignment_a():
-    timesteps = [0.0142, 0.0143, 0.0148, 0.015]
+    timesteps = [0.032, 0.034]
     simulations = {}
     for dt in timesteps:
-        sim = MDsimulator(dt=dt)
-        sim.simulate()
-        sim.plot_energy(title='Timestep dt = ' + str(dt))
+        for i in range(5):
+            sim = MDsimulator(dt=dt)
+            sim.simulate()
+            sim.plot_energy(title='Timestep dt = ' + str(dt))
 
 
 def calculate_average(sims):
@@ -346,7 +347,7 @@ def assignment_b():
     simulations = {0.2: [], 1: []}
     result = {}
     for T in temperatures:
-        for i in range(100):
+        for i in range(1):
             sim = MDsimulator(T=T)
             sim.simulate()
             simulations[T].append(sim)
@@ -386,12 +387,11 @@ def assignment_c():
     simulations = {0.2: [], 1: []}
     result = {}
     for T in temperatures:
-        for i in range(2):
+        for i in range(1):
             sim = MDsimulator(T=T)
             sim.simulate(use_andersen_thermostat=True)
             simulations[T].append(sim)
         result[T] = calculate_average(simulations[T])
-
 
     # <editor-fold desc="Plot">
     plt.clf()
@@ -422,8 +422,9 @@ def assignment_c():
     plt.show()
     # </editor-fold>
 
+
 def assignment_d():
-    temperatures = [0.2, 0.4, 0.6, 0.8, 1]
+    temperatures = [0.2, 0.3, 0.4, 0.45, 0.55, 0.6, 0.7, 0.75, 0.85, 1]
     simulations = {}
     result = {}
     avg_tot_energy = {}
@@ -431,57 +432,65 @@ def assignment_d():
     for T in temperatures:
         simulations[T] = []
         for i in range(2):
-            sim = MDsimulator(T=T)
+            sim = MDsimulator(T=T, startStepForAveraging=20000, nsteps=40000)
             sim.simulate(use_andersen_thermostat=True)
             simulations[T].append(sim)
         result[T] = calculate_average(simulations[T])
         avg_tot_energy[T] = np.mean(result[T]['avg_kinetic'])
-        avg_heat_capacity[T] = np.average([sim.Cv for sim in simulations[T]])
+        avg_heat_capacity[T] = np.mean([sim.Cv for sim in simulations[T]])
 
     plt.clf()
-    plt.plot(temperatures, avg_tot_energy.values(), '.-')
+    plt.plot(temperatures, avg_tot_energy.values())
     plt.title('Average energy for simulation with temperature T')
     plt.xlabel('Temperatures')
     plt.ylabel('Average energy')
     plt.show()
 
     plt.clf()
-    plt.plot(temperatures, avg_heat_capacity.values(), '.-')
+    plt.plot(temperatures, avg_heat_capacity.values())
     plt.title('Heat capacity for simulation with temperature T')
     plt.xlabel('Temperatures')
     plt.ylabel('Heat capacity')
     plt.show()
 
+
 def assignment_e():
-    temperatures = np.array([0.2, 0.4, 0.6, 0.8, 1])
+    temperatures = np.array([0.2, 0.3, 0.4,0.5, 0.6,0.7, 0.8,0.9, 1])
     n = 24
     L = 6.7
-    pressure_L = []
+    m = 10
+    pressure_L_v_T = []
     for T in temperatures:
-        sim = MDsimulator(T=T)
-        sim.simulate(use_andersen_thermostat=True)
-        pressure_L.append(sim.PV/((2*L)**3))
+        pressures = np.zeros(m)
+        for i in range(m):
+            sim = MDsimulator(T=T)
+            sim.simulate(use_andersen_thermostat=True)
+            pressures[i] = sim.PV
+        pressure_L_v_T.append(np.mean(pressures))  #pressure_L.append(sim.PV / ((2 * L) ** 3)) stod innan
     plt.clf()
-    plt.plot(temperatures, pressure_L, label='Simulation')
-    plt.plot(temperatures, n*kB/L**3*temperatures, label='Ideal gas')
+    plt.plot(temperatures, pressure_L_v_T, label='Simulation')
+    plt.plot(temperatures, n * kB * temperatures, label='Ideal gas')
     plt.legend()
     plt.xlabel('Temperatures')
-    plt.ylabel('Pressure')
-    plt.title('Pressure vs temperature for L = 6.7')
+    plt.ylabel('PV')
+    plt.title('PV vs temperature for L = 6.7')
     plt.show()
 
-    pressure_2L = []
+    pressure_2L_v_T = []
     for T in temperatures:
-        sim = MDsimulator(T=T, L=2*L)
-        sim.simulate(use_andersen_thermostat=True)
-        pressure_2L.append(sim.PV / (2*L)**3)
+        pressures = np.zeros(m)
+        for i in range(m):
+            sim = MDsimulator(T=T, L=2*L)
+            sim.simulate(use_andersen_thermostat=True)
+            pressures[i] = sim.PV
+        pressure_2L_v_T.append(np.mean(pressures))
     plt.clf()
-    plt.plot(temperatures, pressure_2L, label='Simulation')
-    plt.plot(temperatures, n * kB / (2*L) ** 3 * temperatures, label='Ideal gas')
+    plt.plot(temperatures, pressure_2L_v_T, label='Simulation')
+    plt.plot(temperatures, n * kB * temperatures, label='Ideal gas')
     plt.legend()
     plt.xlabel('Temperatures')
-    plt.ylabel('Pressure')
-    plt.title('Pressure vs temperature for L = 13.4')
+    plt.ylabel('PV')
+    plt.title('PV vs temperature for L = 13.4')
     plt.show()
 
 # assignment_a()
