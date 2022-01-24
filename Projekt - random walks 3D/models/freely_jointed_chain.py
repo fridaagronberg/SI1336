@@ -7,7 +7,7 @@ import random
 def check_if_crossing(current_step, self_avoiding_radius, position):
     for n in range(current_step+1):
         diff = position[current_step+1, :] - position[n, :]
-        if self_avoiding_radius < np.sqrt(diff.dot(diff)):
+        if self_avoiding_radius > np.sqrt(diff.dot(diff)):
             return True
     return False
 
@@ -15,7 +15,7 @@ def check_if_crossing(current_step, self_avoiding_radius, position):
 class FreelyJointedChain:
     """Simulates a polymer using a freely jointed chain in 3D."""
 
-    def __init__(self, nsteps, length=1, self_avoiding_radius=0,
+    def __init__(self, nsteps, length=1, self_avoiding_radius=0.1,
                     self_avoiding=False, can_walk_backwards=True):
 
         self.nsteps = nsteps
