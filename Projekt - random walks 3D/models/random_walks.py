@@ -1,3 +1,4 @@
+from numba import jit
 import numpy as np
 
 new_vectors = {
@@ -10,6 +11,15 @@ new_vectors = {
 'last_rand_int': 0
 }
 
+
+@jit(nopython=True)
+def check_if_crossing(current_step, position):
+    for n in range(current_step):
+        if np.array_equal(position[n, :], position[current_step, :]):
+            return True
+    return False
+
+
 class RandomWalk:
     """Simulates a polymer using a random walk in 3D"""
     def __init__(self, nsteps, length=1, self_avoiding=False, can_walk_backwards=True):
@@ -18,7 +28,7 @@ class RandomWalk:
         self._self_avoiding = self_avoiding
         self._can_walk_backwards = can_walk_backwards
 
-        self.position = np.zeros((3, self.nsteps+1))
+        self.position = np.zeros((self.nsteps + 1, 3), dtype='float64')
 
         self.successfully_self_avoidning = True
 
@@ -28,7 +38,7 @@ class RandomWalk:
 
         for n in range(self.nsteps):
             new_vector = self._generate_new_vector()
-            self.position[:, n+1] = self.position[:, n] + new_vector
+            self.position[n+1, :] = self.position[n, :] + new_vector
             if self._self_avoiding:
                 crosses_itself = self._check_if_crossing_itself(n)
                 if crosses_itself:
@@ -46,7 +56,5 @@ class RandomWalk:
 
     def _check_if_crossing_itself(self, current_step):
         """Returns True if the random walk crosses itself, else False."""
-        for n in range(current_step):
-            if np.array_equal(self.position[:, n], self.position[:, current_step]):
-                return True
-        return False
+        return check_if_crossing(current_step, self.position)
+

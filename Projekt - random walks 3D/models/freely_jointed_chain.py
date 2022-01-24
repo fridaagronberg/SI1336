@@ -1,4 +1,16 @@
+from numba import jit
 import numpy as np
+import random
+
+
+@jit(forceobj=True)
+def check_if_crossing(current_step, self_avoiding_radius, position):
+    for n in range(current_step+1):
+        diff = position[current_step+1, :] - position[n, :]
+        if self_avoiding_radius < np.sqrt(diff.dot(diff)):
+            return True
+    return False
+
 
 class FreelyJointedChain:
     """Simulates a polymer using a freely jointed chain in 3D."""
@@ -12,7 +24,7 @@ class FreelyJointedChain:
         self._self_avoiding_radius = self_avoiding_radius
         self._can_walk_backwards = can_walk_backwards
 
-        self.position = np.zeros((3, self.nsteps+1))
+        self.position = np.zeros((self.nsteps+1, 3), dtype='float64')
 
         self.successfully_self_avoidning = True
         self.step_number_when_breaking = 0
@@ -23,7 +35,7 @@ class FreelyJointedChain:
 
         for n in range(self.nsteps):
             new_vector = self._generate_new_vector(n)
-            self.position[:, n+1] = self.position[:, n] + new_vector
+            self.position[n+1, :] = self.position[n, :] + new_vector
             if self._self_avoiding:
                 crosses_itself = self._check_if_crossing_itself(current_step=n)
                 if crosses_itself:
@@ -36,8 +48,10 @@ class FreelyJointedChain:
         the angle between the new and former vector is not larger than
         arcsin(self.self_avoiding_radius/self.lenght)."""
         # Spherical coordinates
-        phi = 2 * np.pi * np.random.randint(0, 360) / 360
-        theta = 2 * np.pi * np.random.randint(0, 180) / 180
+        phi = random.uniform(0, 2*np.pi)
+        costheta = random.uniform(-1, 1)
+
+        theta = np.arccos(costheta)
 
         x = self._lenght * np.sin(phi) * np.sin(theta)
         y = self._lenght * np.cos(phi) * np.sin(theta)
@@ -47,16 +61,13 @@ class FreelyJointedChain:
 
         if not self._can_walk_backwards:
             # Uses a*b/|a||b|=cos(theta)
-            a =
-            angle_between_vectors = np.arccos(new_vector.dot(self.position[:, n])/
-            ((np.sqrt(new_vector.dot(new_vector))*(np.sqrt(self.position[:, n].dot(self.position[:, n]))))))
+            a = new_vector
+            b = self.position[n, :]
+            angle_between_vectors = np.arccos(a.dot(b)/(np.linalg.norm(a)*np.linalg.norm(b)))
             if angle_between_vectors < np.arcsin(self._self_avoiding_radius/self._lenght):
                 return self._generate_new_vector(n)
         return new_vector
 
     def _check_if_crossing_itself(self, current_step):
         """Returns True if walk crosses itself else False"""
-        for n in range(current_step):
-            if self._self_avoiding_radius < np.linalg.norm(self.position[:,current_step] - self.position[:,n]):
-                return True
-        return False
+        return check_if_crossing(current_step , self._self_avoiding_radius, self.position)
