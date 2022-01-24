@@ -1,4 +1,3 @@
-import matplotlib; matplotlib.use("TkAgg")
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -22,7 +21,7 @@ class SimpleRelaxation:
         self.im = ax.imshow(self.grid, cmap=None, interpolation='nearest')
         fig.colorbar(self.im)
 
-        self.ani = animation.FuncAnimation(fig, self.calculate_potential, frames=60,
+        self.ani = animation.FuncAnimation(fig, self.calculate_potential, frames=500,
                                             interval=200, blit=True, repeat = False)
         #plt.show()
 
