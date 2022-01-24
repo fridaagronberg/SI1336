@@ -21,8 +21,8 @@ class FreelyJointedChain:
 
     def _run_simulation(self):
 
-        for n in range(nsteps):
-            new_vector = self._generate_new_vector(n):
+        for n in range(self.nsteps):
+            new_vector = self._generate_new_vector(n)
             self.position[:, n+1] = self.position[:, n] + new_vector
             if self._self_avoiding:
                 crosses_itself = self._check_if_crossing_itself(current_step=n)
@@ -36,25 +36,27 @@ class FreelyJointedChain:
         the angle between the new and former vector is not larger than
         arcsin(self.self_avoiding_radius/self.lenght)."""
         # Spherical coordinates
-        phi = 2 * np.pi * np.randint(0, 360) / 360
-        theta = 2 * np.pi * np.randint(0, 180) / 180
+        phi = 2 * np.pi * np.random.randint(0, 360) / 360
+        theta = 2 * np.pi * np.random.randint(0, 180) / 180
 
-        x = self.lenght * np.sin(phi) * np.sin(theta)
-        y = self.lenght * np.cos(phi) * np.sin(theta)
-        z = self.lenght * np.cos(theta)
+        x = self._lenght * np.sin(phi) * np.sin(theta)
+        y = self._lenght * np.cos(phi) * np.sin(theta)
+        z = self._lenght * np.cos(theta)
 
         new_vector = np.array([x, y, z])
 
-        if not self.can_walk_backwards:
+        if not self._can_walk_backwards:
+            # Uses a*b/|a||b|=cos(theta)
+            a =
             angle_between_vectors = np.arccos(new_vector.dot(self.position[:, n])/
-            ((np.sqrt(new_vector.dot(new_vector))*(np.sqrt(self.position[:, n].dot(self.position[:, n]))))
-            if angle_between_vectors < np.arcsin(self.self_avoiding_radius/self.lenght):
+            ((np.sqrt(new_vector.dot(new_vector))*(np.sqrt(self.position[:, n].dot(self.position[:, n]))))))
+            if angle_between_vectors < np.arcsin(self._self_avoiding_radius/self._lenght):
                 return self._generate_new_vector(n)
         return new_vector
 
     def _check_if_crossing_itself(self, current_step):
-        ""Returns True if the walk crosses itself, else False.""
+        """Returns True if walk crosses itself else False"""
         for n in range(current_step):
-            if self.self_avoiding_radius < np.linalg.norm(self.position[:,current_step] - self.position[:,n]):
+            if self._self_avoiding_radius < np.linalg.norm(self.position[:,current_step] - self.position[:,n]):
                 return True
         return False
