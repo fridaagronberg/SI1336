@@ -15,7 +15,7 @@ def check_if_crossing(current_step, self_avoiding_radius, position):
 class FreelyJointedChain:
     """Simulates a polymer using a freely jointed chain in 3D."""
 
-    def __init__(self, nsteps, length=1, self_avoiding_radius=0.1,
+    def __init__(self, nsteps, length=1, self_avoiding_radius=0.01,
                     self_avoiding=False, can_walk_backwards=True):
 
         self.nsteps = nsteps
@@ -30,6 +30,9 @@ class FreelyJointedChain:
         self.step_number_when_breaking = 0
 
         self._run_simulation()
+
+    def __str__(self):
+        return 'FreelyJointedChain'
 
     def _run_simulation(self):
 

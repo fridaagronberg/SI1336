@@ -2,13 +2,13 @@ from numba import jit
 import numpy as np
 
 new_vectors = {
-1: np.array([1, 0, 0]),
-2: np.array([-1, 0, 0]),
-3: np.array([0, 1, 0]),
-4: np.array([0, -1, 0]),
-5: np.array([0, 0, 1]),
-6: np.array([0, 0, -1]),
-'last_rand_int': 0
+    1: np.array([1, 0, 0]),
+    2: np.array([-1, 0, 0]),
+    3: np.array([0, 1, 0]),
+    4: np.array([0, -1, 0]),
+    5: np.array([0, 0, 1]),
+    6: np.array([0, 0, -1]),
+    'last_rand_int': 0
 }
 
 
@@ -31,8 +31,12 @@ class RandomWalk:
         self.position = np.zeros((self.nsteps + 1, 3), dtype='float64')
 
         self.successfully_self_avoidning = True
+        self.step_number_when_breaking = 0
 
         self._run_simulation()
+
+    def __str__(self):
+        return 'RandomWalk'
 
     def _run_simulation(self):
 
@@ -57,4 +61,3 @@ class RandomWalk:
     def _check_if_crossing_itself(self, current_step):
         """Returns True if the random walk crosses itself, else False."""
         return check_if_crossing(current_step, self.position)
-
