@@ -15,7 +15,7 @@ def check_if_crossing(current_step, self_avoiding_radius, position):
 class FreelyJointedChain:
     """Simulates a polymer using a freely jointed chain in 3D."""
 
-    def __init__(self, nsteps, length=1, self_avoiding_radius=0.01,
+    def __init__(self, nsteps, length=1, self_avoiding_radius=0.5,
                     self_avoiding=False, can_walk_backwards=True):
 
         self.nsteps = nsteps
@@ -24,10 +24,10 @@ class FreelyJointedChain:
         self._self_avoiding_radius = self_avoiding_radius
         self._can_walk_backwards = can_walk_backwards
 
-        self.position = np.zeros((self.nsteps+1, 3), dtype='float64')
+        self.position = np.zeros([self.nsteps+1, 3], dtype='float64')
 
         self.successfully_self_avoidning = True
-        self.step_number_when_breaking = 0
+        self.step_number_when_breaking = self.nsteps
 
         self._run_simulation()
 

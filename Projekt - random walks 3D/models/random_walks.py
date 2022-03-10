@@ -13,9 +13,9 @@ new_vectors = {
 
 
 @jit(nopython=True)
-def check_if_crossing(current_step, position):
+def check_if_crossing(current_step, position, new_pos):
     for n in range(current_step):
-        if np.array_equal(position[n, :], position[current_step, :]):
+        if np.array_equal(position[n, :], new_pos):
             return True
     return False
 
@@ -31,7 +31,7 @@ class RandomWalk:
         self.position = np.zeros((self.nsteps + 1, 3), dtype='float64')
 
         self.successfully_self_avoidning = True
-        self.step_number_when_breaking = 0
+        self.step_number_when_breaking = self.nsteps
 
         self._run_simulation()
 
@@ -42,13 +42,15 @@ class RandomWalk:
 
         for n in range(self.nsteps):
             new_vector = self._generate_new_vector()
-            self.position[n+1, :] = self.position[n, :] + new_vector
+            new_pos = self.position[n, :] + new_vector
             if self._self_avoiding:
-                crosses_itself = self._check_if_crossing_itself(n)
+                crosses_itself = self._check_if_crossing_itself(n, new_pos)
                 if crosses_itself:
                     self.successfully_self_avoidning = False
                     self.step_number_when_breaking = n
                     break
+            self.position[n + 1, :] = new_pos
+
 
     def _generate_new_vector(self):
         random_number = np.random.randint(1, 7)
@@ -58,6 +60,11 @@ class RandomWalk:
             new_vectors['last_rand_int'] = random_number
         return new_vectors[random_number]
 
-    def _check_if_crossing_itself(self, current_step):
+    def _check_if_crossing_itself(self, current_step, new_pos):
         """Returns True if the random walk crosses itself, else False."""
-        return check_if_crossing(current_step, self.position)
+        for i in range(0, current_step):
+            if self.position[i, 0] == new_pos[0]:
+                if self.position[i, 1] == new_pos[1]:
+                    if self.position[i, 2] == new_pos[2]:
+                        return True
+        return False #check_if_crossing(current_step, self.position, new_pos)
